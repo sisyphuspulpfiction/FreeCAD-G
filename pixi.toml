@@ -180,7 +180,7 @@ freecad-debug = { cmd = [ ".pixi/envs/default/Library/bin/FreeCAD.exe" ], depend
 freecad-release = { cmd = [ ".pixi/envs/default/Library/bin/FreeCAD.exe" ], depends-on = ["install-release"]}
 
 [tasks]
-initialize = { cmd = "if [ -d .git ]; then git submodule update --init --recursive; else echo \"Not a git repository, skipping submodule update\"; fi" }
+initialize = { cmd = "python -c \"import os, subprocess; subprocess.run(['git', 'submodule', 'update', '--init', '--recursive']) if os.path.exists('.git') else print('Not a git repository, skipping submodule update')\"" }
 # redirect to debug by default
 configure = [{ task = "configure-debug" }]
 build = [{ task = "build-debug" }]
