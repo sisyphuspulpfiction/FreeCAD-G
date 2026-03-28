@@ -189,4 +189,9 @@ AssemblyExport std::vector<std::string> getSubAsList(
 );
 AssemblyExport void syncPlacements(App::DocumentObject* src, App::DocumentObject* to);
 
+AssemblyExport bool isJointRedundant(
+    const App::DocumentObject* joint,
+    const std::vector<App::DocumentObject*>& others
+);
+
 }  // namespace Assembly

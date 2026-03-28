@@ -26,6 +26,7 @@
 #include <QEvent>
 #include <QMainWindow>
 #include <QMdiArea>
+#include <QLineEdit>
 
 #include "Window.h"
 #include "InputHint.h"
@@ -47,6 +48,7 @@ class CommandManager;
 class Document;
 class MacroManager;
 class MDIView;
+class Ribbon;
 
 namespace DockWnd
 {
@@ -283,6 +285,7 @@ public Q_SLOTS:
 
     // Set main window title
     void setWindowTitle(const QString& string);
+    void updateRibbon(const QString& workbenchName = QString());
 
 protected:
     /**
@@ -337,6 +340,7 @@ private:
     );
 
 private Q_SLOTS:
+    void onCommandSearchActivated(const QByteArray& commandName);
     /**
      * \internal
      */
