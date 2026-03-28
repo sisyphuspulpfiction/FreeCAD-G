@@ -808,4 +808,39 @@ std::vector<App::DocumentObject*> getAssemblyComponents(const AssemblyObject* as
     return components;
 }
 
+bool isJointRedundant(const App::DocumentObject* joint, const std::vector<App::DocumentObject*>& others)
+{
+    if (!joint) {
+        return false;
+    }
+
+    auto* part1 = getMovingPartFromRef(joint, "Reference1");
+    auto* part2 = getMovingPartFromRef(joint, "Reference2");
+    if (!part1 || !part2) {
+        return false;
+    }
+
+    JointType type = getJointType(joint);
+
+    for (auto* other : others) {
+        if (!other || other == joint) {
+            continue;
+        }
+
+        auto* opart1 = getMovingPartFromRef(other, "Reference1");
+        auto* opart2 = getMovingPartFromRef(other, "Reference2");
+
+        if (((part1 == opart1 && part2 == opart2) || (part1 == opart2 && part2 == opart1))
+            && type == getJointType(other)) {
+            // Check if references are the same
+            if (getElementFromProp(joint, "Reference1") == getElementFromProp(other, "Reference1")
+                && getElementFromProp(joint, "Reference2") == getElementFromProp(other, "Reference2")) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 }  // namespace Assembly

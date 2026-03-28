@@ -107,6 +107,7 @@
 #include "StatusBarLabel.h"
 #include "ToolBarManager.h"
 #include "ToolBoxManager.h"
+#include "CommandCompleter.h"
 #include "Tree.h"
 #include "WaitCursor.h"
 #include "WorkbenchManager.h"
@@ -311,6 +312,8 @@ struct MainWindowP
     QTimer saveStateTimer;
     QTimer restoreStateTimer;
     QMdiArea* mdiArea;
+    Ribbon* ribbon;
+    QLineEdit* searchBar;
     QPointer<MDIView> activeView;
     QSignalMapper* windowMapper;
     SplashScreen* splashscreen;
@@ -391,6 +394,26 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags f)
 
     // Create the layout containing the workspace and a tab bar
     d->mdiArea = new QMdiArea();
+
+    d->ribbon = new Ribbon(this);
+    d->ribbon->setObjectName(QStringLiteral("ribbon"));
+
+    d->searchBar = new QLineEdit(this);
+    d->searchBar->setPlaceholderText(tr("Search commands..."));
+    d->searchBar->setFixedWidth(200);
+    auto completer = new CommandCompleter(d->searchBar, this);
+    connect(completer, &CommandCompleter::commandActivated, this, &MainWindow::onCommandSearchActivated);
+
+    QWidget* central = new QWidget(this);
+    QVBoxLayout* centralLayout = new QVBoxLayout(central);
+    centralLayout->setContentsMargins(0, 0, 0, 0);
+    centralLayout->setSpacing(0);
+    QHBoxLayout* topLayout = new QHBoxLayout();
+    topLayout->addWidget(d->ribbon, 1);
+    topLayout->addWidget(d->searchBar);
+    topLayout->setAlignment(d->searchBar, Qt::AlignTop);
+    centralLayout->addLayout(topLayout);
+    centralLayout->addWidget(d->mdiArea);
     // Movable tabs
     d->mdiArea->setTabsMovable(true);
     d->mdiArea->setTabPosition(QTabWidget::South);
@@ -409,7 +432,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags f)
     d->mdiArea->setActivationOrder(QMdiArea::ActivationHistoryOrder);
 #endif
     d->mdiArea->setBackground(QBrush(QColor(160, 160, 160)));
-    setCentralWidget(d->mdiArea);
+    setCentralWidget(central);
 
     statusBar()->setObjectName(QStringLiteral("statusBar"));
     connect(statusBar(), &QStatusBar::messageChanged, this, &MainWindow::statusMessageChanged);
@@ -1067,6 +1090,8 @@ void MainWindow::activateWorkbench(const QString& name)
     if (view && saveWB) {
         view->setProperty("ownWB", name);
     }
+
+    updateRibbon(name);
 
     // emit this signal
     Q_EMIT workbenchActivated(name);
@@ -2692,6 +2717,56 @@ void MainWindow::customEvent(QEvent* e)
 QMdiArea* MainWindow::getMdiArea() const
 {
     return d->mdiArea;
+}
+
+void MainWindow::onCommandSearchActivated(const QByteArray& commandName)
+{
+    Application::Instance->commandManager().runCommandByName(commandName.constData());
+    d->searchBar->clear();
+}
+
+void MainWindow::updateRibbon(const QString& workbenchName)
+{
+    if (!d->ribbon) {
+        return;
+    }
+
+    QString name = workbenchName;
+    if (name.isEmpty()) {
+        Workbench* wb = WorkbenchManager::instance()->active();
+        if (wb) {
+            name = QString::fromStdString(wb->name());
+        }
+    }
+
+    if (name.isEmpty()) {
+        return;
+    }
+
+    d->ribbon->clear();
+
+    Workbench* wb = WorkbenchManager::instance()->getWorkbench(name.toStdString());
+    if (!wb) {
+        return;
+    }
+
+    auto toolbarItems = wb->getToolbarItems();
+    if (toolbarItems.empty()) {
+        return;
+    }
+
+    RibbonTab* tab = d->ribbon->addTab(name);
+
+    for (const auto& bar : toolbarItems) {
+        RibbonGroup* group = tab->addGroup(QString::fromStdString(bar.first));
+        for (const auto& cmd : bar.second) {
+            if (cmd == "Separator") {
+                group->addSeparator();
+            } else {
+                group->addCommand(cmd.c_str());
+            }
+        }
+    }
 }
 
 void MainWindow::setWindowTitle(const QString& string)

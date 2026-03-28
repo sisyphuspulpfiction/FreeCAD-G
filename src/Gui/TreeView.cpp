@@ -46,6 +46,8 @@ TreeView::TreeView(QWidget* parent)
     this->setRootIsDecorated(false);
     this->setSelectionMode(QAbstractItemView::ExtendedSelection);
     this->setMouseTracking(true);  // needed for itemEntered() to work
+    this->setIndentation(20);
+    this->setStyleSheet("QTreeView::item { height: 28px; }");
 }
 
 TreeView::~TreeView() = default;

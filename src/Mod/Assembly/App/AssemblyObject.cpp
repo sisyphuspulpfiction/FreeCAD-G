@@ -752,7 +752,9 @@ std::vector<App::DocumentObject*> AssemblyObject::getJoints(bool updateJCS, bool
         auto proxy = dynamic_cast<App::PropertyPythonObject*>(joint->getPropertyByName("Proxy"));
         if (proxy) {
             if (proxy->getValue().hasAttr("setJointConnectors")) {
-                joints.push_back(joint);
+                if (!isJointRedundant(joint, joints)) {
+                    joints.push_back(joint);
+                }
             }
         }
     }

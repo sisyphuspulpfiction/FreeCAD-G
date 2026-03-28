@@ -77,8 +77,10 @@ PropertyEditor::PropertyEditor(QWidget* parent)
     setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     setAlternatingRowColors(true);
-    setRootIsDecorated(false);
-    setExpandsOnDoubleClick(false);
+    setRootIsDecorated(true);
+    setExpandsOnDoubleClick(true);
+    this->setIndentation(15);
+    this->setStyleSheet("QTreeView::item { height: 26px; }");
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QStyleOptionViewItem opt = PropertyEditor::viewOptions();
