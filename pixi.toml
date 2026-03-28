@@ -188,8 +188,8 @@ install = [{ task = "install-debug" }]
 test = [{ task = "test-debug" }]
 freecad = [{ task = "freecad-debug" }]
 
-build-debug = { cmd = ["cmake", "--build", "build/debug"]}
-build-release = { cmd = ["cmake", "--build", "build/release"]}
+build-debug = { cmd = ["cmake", "--build", "build/debug"], depends-on = ["configure-debug"]}
+build-release = { cmd = ["cmake", "--build", "build/release"], depends-on = ["configure-release"]}
 install-debug = { cmd = ["cmake", "--install", "build/debug"]}
 install-release = { cmd = ["cmake", "--install", "build/release"]}
 test-debug = { cmd = ["ctest", "--test-dir", "build/debug"]}
