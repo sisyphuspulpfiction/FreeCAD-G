@@ -1,4 +1,4 @@
-fc_copy_to_mod_path("NX_V2"
+fc_copy_to_mod_path("Unofficial2"
     InitGui.py
     Init.py
 )
@@ -8,5 +8,5 @@ INSTALL(
         Init.py
         InitGui.py
     DESTINATION
-        Mod/NX_V2
+        Mod/Unofficial2
 )
