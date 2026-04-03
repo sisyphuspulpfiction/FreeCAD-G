@@ -139,3 +139,7 @@ endif(BUILD_TUX)
 if(BUILD_WEB)
     add_subdirectory(Web)
 endif(BUILD_WEB)
+
+if(BUILD_NXV2)
+    add_subdirectory(NX_V2)
+endif(BUILD_NXV2)
